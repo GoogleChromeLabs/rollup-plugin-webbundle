@@ -45,13 +45,23 @@ export default {
 
 A WBN file `dist/out.wbn` should be written.
 
-### Isolated Web App (Signed Web Bundle)
+### [Isolated Web App](https://github.com/WICG/isolated-web-apps/blob/main/README.md) (Signed Web Bundle)
 
 This example assumes your application entry point is `src/index.js`, static
 files (including `index.html`) are located in `static` directory and you have a
 `.env` file in the root directory with `ED25519KEY` defined in it. The example
-also requires installing `dotenv` and `wbn-sign` npm packages as dev
-dependencies.
+also requires installing `dotenv` npm package as a dev dependency.
+
+It is also required to have a
+[Web App Manifest](https://developer.mozilla.org/en-US/docs/Web/Manifest) at
+`/manifest.webmanifest`, which can be placed e.g. in the `static` directory.
+
+Also as in the below example, `baseURL` must be of format
+`isolated-app://${WEB_BUNDLE_ID}` for Isolated Web Apps. It can easily be
+generated from the private key with `WebBundleId` helper class from `wbn-sign`
+package. See
+[Scheme explainer](https://github.com/WICG/isolated-web-apps/blob/main/Scheme.md)
+for more details.
 
 ```js
 /* rollup.config.mjs */
@@ -81,7 +91,9 @@ export default {
 };
 ```
 
-A web bundle with integrity block (.swbn) `dist/signed.swbn` should be written.
+A signed web bundle (containing an
+[Integrity Block](https://github.com/WICG/webpackage/blob/main/explainers/integrity-signature.md))
+should be written to `dist/signed.swbn`.
 
 ## Options
 
@@ -125,13 +137,14 @@ Specifies the file name of the Web Bundle to emit.
 
 Type: `{ key: string }`
 
-Object specifying the signing options with Integrity Block.
+Object specifying the signing options with
+[Integrity Block](https://github.com/WICG/webpackage/blob/main/explainers/integrity-signature.md).
 
-### `integrityBlockSign.key` (required if `integrityBlockSign` in place)
+### `integrityBlockSign.key` (required if `integrityBlockSign` is in place)
 
 Type: `string`
 
-Ed25519 type of private key as a string, which can be generated with:
+A PEM-encoded Ed25519 private key as a string, which can be generated with:
 
 ```bash
 openssl genpkey -algorithm Ed25519 -out ed25519key.pem
