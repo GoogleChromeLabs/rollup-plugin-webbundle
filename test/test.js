@@ -22,7 +22,13 @@ import * as wbn from 'wbn';
 import * as wbnSign from 'wbn-sign';
 
 import webbundle from '../lib/index.js';
-import iwaHeaders from '../lib/iwa-headers.js';
+import {
+  coep,
+  coop,
+  corp,
+  csp,
+  iwaHeaderDefaults,
+} from '../lib/iwa-headers.js';
 
 const TEST_ED25519_PRIVATE_KEY = wbnSign.parsePemKey(
   '-----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIB8nP5PpWU7HiILHSfh5PYzb5GAcIfHZ+bw6tcd/LZXh\n-----END PRIVATE KEY-----'
@@ -197,38 +203,38 @@ test('headerOverride - IWA with good headers', async (t) => {
     // These are added manually as they expect more than just `iwaHeaderDefaults`.
     {
       headerOverride: {
-        ...iwaHeaders.iwaHeaderDefaults,
+        ...iwaHeaderDefaults,
         'X-Csrf-Token': 'hello-world',
       },
       expectedHeaders: {
-        ...iwaHeaders.iwaHeaderDefaults,
+        ...iwaHeaderDefaults,
         'x-csrf-token': 'hello-world',
       },
     },
     {
       headerOverride: () => {
         return {
-          ...iwaHeaders.iwaHeaderDefaults,
+          ...iwaHeaderDefaults,
           'X-Csrf-Token': 'hello-world',
         };
       },
       expectedHeaders: {
-        ...iwaHeaders.iwaHeaderDefaults,
+        ...iwaHeaderDefaults,
         'x-csrf-token': 'hello-world',
       },
     },
   ];
 
   const headersThatDefaultToIWADefaults = [
-    { ...iwaHeaders.coop, ...iwaHeaders.corp, ...iwaHeaders.csp },
-    { ...iwaHeaders.coep, ...iwaHeaders.corp, ...iwaHeaders.csp },
-    { ...iwaHeaders.coep, ...iwaHeaders.coop, ...iwaHeaders.csp },
-    { ...iwaHeaders.coep, ...iwaHeaders.coop, ...iwaHeaders.corp },
-    iwaHeaders.iwaHeaderDefaults,
+    { ...coop, ...corp, ...csp },
+    { ...coep, ...corp, ...csp },
+    { ...coep, ...coop, ...csp },
+    { ...coep, ...coop, ...corp },
+    iwaHeaderDefaults,
     {},
     undefined,
     {
-      ...iwaHeaders.iwaHeaderDefaults,
+      ...iwaHeaderDefaults,
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   ];
@@ -237,14 +243,14 @@ test('headerOverride - IWA with good headers', async (t) => {
     // Both functions and objects are ok so let's test with both.
     headersTestCases.push({
       headerOverride: headers,
-      expectedHeaders: iwaHeaders.iwaHeaderDefaults,
+      expectedHeaders: iwaHeaderDefaults,
     });
 
     // Not supported as typeof function because that's forced to return `Headers` map.
     if (headers === undefined) continue;
     headersTestCases.push({
       headerOverride: () => headers,
-      expectedHeaders: iwaHeaders.iwaHeaderDefaults,
+      expectedHeaders: iwaHeaderDefaults,
     });
   }
 
@@ -279,7 +285,7 @@ test('headerOverride - IWA with good headers', async (t) => {
       const usignedBundle = new wbn.Bundle(swbnFile.slice(-wbnLength));
       for (const url of usignedBundle.urls) {
         for (const [headerName, headerValue] of Object.entries(
-          iwaHeaders.iwaHeaderDefaults
+          iwaHeaderDefaults
         )) {
           t.is(usignedBundle.getResponse(url).headers[headerName], headerValue);
         }
@@ -383,7 +389,7 @@ test("headerOverride - non-IWA doesn't enforce IWA headers", async (t) => {
         t.is(usignedBundle.getResponse(url).headers[headerName], headerValue);
       }
       // Did not add any IWA headers automatically.
-      for (const headerName of Object.keys(iwaHeaders.iwaHeaderDefaults)) {
+      for (const headerName of Object.keys(iwaHeaderDefaults)) {
         t.is(usignedBundle.getResponse(url).headers[headerName], undefined);
       }
     }
