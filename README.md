@@ -1,3 +1,8 @@
+# 🚨 This repository is archived 🗄️
+
+The plugin has been moved to
+[GoogleChromeLabs/webbundle-plugins/packages/rollup-plugin-webbundle](https://github.com/GoogleChromeLabs/webbundle-plugins/tree/main/packages/rollup-plugin-webbundle).
+
 # rollup-plugin-webbundle
 
 A Rollup plugin which generates
